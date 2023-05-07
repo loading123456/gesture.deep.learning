@@ -46,7 +46,8 @@ def camera(fn: Callable[[cv2.Mat, Tuple[bool, cv2.Mat]], None]):
                 success, image = cap.read()
 
                 if not success:
-                    raise BreakException("Can't receive frame (stream end?). Exiting ...")
+                    raise BreakException(
+                        "Can't receive frame (stream end?). Exiting ...")
 
                 image = cv2.flip(image, 1)
 
@@ -55,7 +56,7 @@ def camera(fn: Callable[[cv2.Mat, Tuple[bool, cv2.Mat]], None]):
 
                 hand_image: Optional[cv2.Mat] = None
                 if result.multi_hand_landmarks:  # type: ignore
-                    hand_landmarks = result.multi_hand_landmarks[0]  # type: ignore
+                    hand_landmarks = result.multi_hand_landmarks[0] # type: ignore
 
                     points = [(int(landmark.x*image.shape[1]), int(landmark.y*image.shape[0]))
                               for landmark in hand_landmarks.landmark]
@@ -65,18 +66,23 @@ def camera(fn: Callable[[cv2.Mat, Tuple[bool, cv2.Mat]], None]):
                     x_min, y_min = int(x - r), int(y - r)
                     x_max, y_max = int(x + r), int(y + r)
 
+                    black_image = np.zeros(image.shape, dtype=np.uint8)
+                    thickness = int(r/8) # thanks to Vu Ding Dung
                     drawing_utils.draw_landmarks(
-                        image,
+                        black_image,
                         hand_landmarks,
                         hands_connections.HAND_CONNECTIONS,  # type: ignore
-                        drawing_utils.DrawingSpec(thickness=10),
-                        drawing_utils.DrawingSpec(thickness=10)
+                        drawing_utils.DrawingSpec(thickness=thickness),
+                        drawing_utils.DrawingSpec(thickness=thickness)
                     )
 
                     hand_image = cv2.getRectSubPix(
-                        image, (x_max - x_min, y_max - y_min), (x, y))
+                        black_image, (x_max - x_min, y_max - y_min), (x, y))
 
-                    image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                    del black_image # release memory
+
+                    image = cv2.rectangle(
+                        image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
                 fn(image, (isinstance(hand_image, np.ndarray),
                            hand_image))  # type: ignore

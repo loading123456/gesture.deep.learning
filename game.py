@@ -155,7 +155,7 @@ while running:
     pygame.display.set_caption("My Pygame Game (FPS: {})".format(fps))
 
     # Limit the FPS to 16
-    clock.tick(16)
+    clock.tick(24)
 
 # Quit the game
 pygame.quit()

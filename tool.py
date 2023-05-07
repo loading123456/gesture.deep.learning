@@ -1,7 +1,6 @@
 import argparse
 import cv2
 import os
-import pathlib
 from khmt import camera, BreakException
 from typing import Tuple
 
@@ -36,13 +35,13 @@ def generate_training_set(image: cv2.Mat, hand_detect: Tuple[bool, cv2.Mat]):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Training data generator')
-    parser.add_argument('path', type=pathlib.Path)
+    parser.add_argument('classname', type=str)
     parser.add_argument('-i', '--iter', type=int, default=100)
 
     args = parser.parse_args()
     i = 0
     isCapture = False
-    path = args.path
+    path = os.path.join('./data', args.classname)
 
     if not os.path.exists(path):
         os.makedirs(path)
